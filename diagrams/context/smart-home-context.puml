@@ -1,0 +1,18 @@
+@startuml
+!include <C4/C4_Container>
+
+title Тёплый дом - context diagram
+
+Person(user, "Пользователь")
+Person(admin, "Администратор")
+
+System(monolith, "Приложение управления отоплением", "Монолитное приложение, обеспечивающее управление отоплением и мониторинг температуры")
+System_Ext(heating_system, "Система отопления", "Управляет физическим отоплением в доме")
+System_Ext(temp_sensors, "Датчики температуры", "Собирают данные о температуре в доме")
+
+Rel(user, monolith, "Запрашивает данные и управляет отоплением", "HTTPS")
+Rel(admin, monolith, "Подключает датчики к системе")
+Rel(monolith, heating_system, "Передает команды для управления отоплением", "HTTPS")
+Rel(temp_sensors, monolith, "Передают данные о температуре", "HTTPS")
+Rel(monolith, temp_sensors, "Запрашивает показания датчиков", "HTTPS")
+@enduml

@@ -1,0 +1,14 @@
+@startuml
+!include <C4/C4_Component>
+title Smart Home Component-Level Diagram
+
+Container_Boundary(MonitoringService, "Микросервис мониторинга") {
+    Component(api_monitoring, "API мониторинга", "REST API", "Обрабатывает запросы пользователей")
+    Component(sensor_processor, "Обработчик данных с датчиков", "Java", "Обрабатывает данные с датчиков и отправляет уведомления")
+    Component(telemetry_storage, "Хранилище телеметрии", "Postgres", "Сохраняет данные телеметрии")
+    System_Ext(temp_sensors, "Датчики температуры", "Собирают данные о температуре в доме")
+    Rel(api_monitoring, sensor_processor, "Передает данные с датчиков")
+    Rel(sensor_processor, telemetry_storage, "Сохраняет данные")
+    Rel(sensor_processor, temp_sensors, "Получает данные от устройства")
+}
+@enduml

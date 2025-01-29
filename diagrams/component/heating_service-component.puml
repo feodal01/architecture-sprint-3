@@ -1,0 +1,16 @@
+@startuml
+!include <C4/C4_Component>
+title Smart Home Component-Level Diagram
+
+Container_Boundary(HeatingService, "Микросервис управления отоплением") {
+    Component(api_heating, "API отопления", "REST API", "Обрабатывает запросы пользователей")
+    Component(command_heating, "Обработчик команд", "Java", "Обрабатывает команды управления отоплением")
+    Component(state_heating, "Менеджер состояния отопления", "Java", "Следит за состоянием отопления и обновляет базу данных")
+    Component(db_heating, "База данных отопления", "Postgres", "Хранит данные об отоплении")
+    System_Ext(heating_system, "Система отопления", "Управляет физическим отоплением в доме")
+    Rel(api_heating, command_heating, "Передает команды управления")
+    Rel(command_heating, state_heating, "Обновляет состояние отопления")
+    Rel(state_heating, db_heating, "Сохраняет данные")
+    Rel(state_heating, heating_system, "Передает команды на устройство")
+}
+@enduml

@@ -1,0 +1,18 @@
+@startuml
+!include <C4/C4_Component>
+title Smart Home Component-Level Diagram
+
+Container_Boundary(NotificationService, "Микросервис уведомлений") {
+    Component(api_notifications, "API уведомлений", "REST API", "Обрабатывает запросы на уведомления")
+    Component(command_notifications, "Обработчик уведомлений", "Java", "Отправляет уведомления")
+    Component(sms_gateway, "SMS шлюз", "Java", "Отправляет SMS через оператора")
+    Component(email_gateway, "Email шлюз", "Java", "Отправляет email уведомления")
+    Component(db_notifications, "База данных уведомлений", "Postgres", "Хранит историю уведомлений")
+    System_Ext(sms_operator, "Оператор СМС", "Отправляет СМС уведомления")
+    Rel(api_notifications, command_notifications, "Передает запросы на уведомления")
+    Rel(command_notifications, sms_gateway, "Отправляет SMS")
+    Rel(command_notifications, email_gateway, "Отправляет Email")
+    Rel(command_notifications, db_notifications, "Сохраняет историю уведомлений")
+    Rel(sms_gateway, sms_operator, "Передает SMS в оператор")
+}
+@enduml

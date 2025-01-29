@@ -1,0 +1,104 @@
+@startuml
+
+!include <C4/C4_Component>
+title Smart Home Component-Level Diagram
+
+System_Boundary(SmartHomeSystem, "Smart Home") {
+    Container_Boundary(web_application, "Веб приложение") {
+        Component(api_gateway, "API Gateway", "Spring API Gateway", "Управляет запросами пользователей и маршрутизацией к веб-приложению")
+        Component(web_app, "Веб-приложение", "Java, Spring", "Обеспечивает интерфейс для взаимодействия пользователя с системой")
+        Component(profile, "Сервис авторизации и профиля", "Java, Spring", "Обеспечивает авторизацию пользователя и управление профилем")
+        Component(db_web, "База данных веб-приложения", "Postgres", "Хранит пользовательские настройки")
+        Rel(web_app, db_web, "Читает и записывает пользовательские данные")
+        Rel(api_gateway, web_app, "Маршрутизирует запросы к веб-приложению")
+        Rel(api_gateway, profile, "Передает запросы авторизации")
+        Rel(web_app, profile, "Управляет профилем пользователя")
+    }
+
+    Container_Boundary(HeatingService, "Микросервис управления отоплением") {
+        Component(api_heating, "API отопления", "REST API", "Обрабатывает запросы пользователей")
+        Component(command_heating, "Обработчик команд", "Java", "Обрабатывает команды управления отоплением")
+        Component(state_heating, "Менеджер состояния отопления", "Java", "Следит за состоянием отопления и обновляет базу данных")
+        Component(db_heating, "База данных отопления", "Postgres", "Хранит данные об отоплении")
+        System_Ext(heating_system, "Система отопления", "Управляет физическим отоплением в доме")
+        Rel(api_heating, command_heating, "Передает команды управления")
+        Rel(command_heating, state_heating, "Обновляет состояние отопления")
+        Rel(state_heating, db_heating, "Сохраняет данные")
+        Rel(state_heating, heating_system, "Передает команды на устройство")
+    }
+
+    Container_Boundary(LightingService, "Микросервис управления светом") {
+        Component(api_light, "API освещения", "REST API", "Обрабатывает запросы пользователей")
+        Component(command_light, "Обработчик команд", "Java", "Обрабатывает команды управления освещением")
+        Component(state_light, "Менеджер состояния освещения", "Java", "Следит за состоянием света и обновляет базу данных")
+        Component(db_light, "База данных освещения", "Postgres", "Хранит данные об освещении")
+        System_Ext(lights, "Освещение", "Контролирует освещение в доме")
+        Rel(api_light, command_light, "Передает команды управления")
+        Rel(command_light, state_light, "Обновляет состояние освещения")
+        Rel(state_light, db_light, "Сохраняет данные")
+        Rel(state_light, lights, "Передает команды на устройство")
+    }
+
+    Container_Boundary(GatesService, "Микросервис управления воротами") {
+        Component(api_gates, "API ворот", "REST API", "Обрабатывает запросы пользователей")
+        Component(command_gates, "Обработчик команд", "Java", "Обрабатывает команды управления воротами")
+        Component(state_gates, "Менеджер состояния ворот", "Java", "Следит за состоянием ворот и обновляет базу данных")
+        Component(db_gates, "База данных ворот", "Postgres", "Хранит данные о состоянии ворот")
+        System_Ext(gates, "Ворота", "Управляет автоматическими воротами")
+        Rel(api_gates, command_gates, "Передает команды управления")
+        Rel(command_gates, state_gates, "Обновляет состояние ворот")
+        Rel(state_gates, db_gates, "Сохраняет данные")
+        Rel(state_gates, gates, "Передает команды на устройство")
+    }
+
+    Container_Boundary(VideoService, "Микросервис управления камерами") {
+        Component(api_video, "API видеонаблюдения", "REST API", "Обрабатывает запросы пользователей")
+        Component(command_video, "Обработчик команд", "Java", "Обрабатывает команды управления камерами")
+        Component(state_video, "Менеджер состояния камер", "Java", "Следит за состоянием камер и обновляет базу данных")
+        Component(db_tv, "База данных камер", "Postgres", "Хранит метаданные камер")
+        Component(db_tv_mongo, "База данных видеозаписей", "MongoDB", "Хранит видеозаписи")
+        System_Ext(tv, "Камеры", "Отвечает за видеонаблюдение")
+        Rel(api_video, command_video, "Передает команды управления")
+        Rel(command_video, state_video, "Обновляет состояние камер")
+        Rel(state_video, db_tv, "Сохраняет метаданные камер")
+        Rel(state_video, db_tv_mongo, "Сохраняет видеозаписи")
+        Rel(state_video, tv, "Передает команды на устройство")
+    }
+
+    Container_Boundary(MonitoringService, "Микросервис мониторинга") {
+        Component(api_monitoring, "API мониторинга", "REST API", "Обрабатывает запросы пользователей")
+        Component(sensor_processor, "Обработчик данных с датчиков", "Java", "Обрабатывает данные с датчиков и отправляет уведомления")
+        Component(telemetry_storage, "Хранилище телеметрии", "Postgres", "Сохраняет данные телеметрии")
+        System_Ext(temp_sensors, "Датчики температуры", "Собирают данные о температуре в доме")
+        Rel(api_monitoring, sensor_processor, "Передает данные с датчиков")
+        Rel(sensor_processor, telemetry_storage, "Сохраняет данные")
+        Rel(sensor_processor, temp_sensors, "Получает данные от устройства")
+    }
+
+    Container_Boundary(NotificationService, "Микросервис уведомлений") {
+        Component(api_notifications, "API уведомлений", "REST API", "Обрабатывает запросы на уведомления")
+        Component(command_notifications, "Обработчик уведомлений", "Java", "Отправляет уведомления")
+        Component(sms_gateway, "SMS шлюз", "Java", "Отправляет SMS через оператора")
+        Component(email_gateway, "Email шлюз", "Java", "Отправляет email уведомления")
+        Component(db_notifications, "База данных уведомлений", "Postgres", "Хранит историю уведомлений")
+        System_Ext(sms_operator, "Оператор СМС", "Отправляет СМС уведомления")
+        Rel(api_notifications, command_notifications, "Передает запросы на уведомления")
+        Rel(command_notifications, sms_gateway, "Отправляет SMS")
+        Rel(command_notifications, email_gateway, "Отправляет Email")
+        Rel(command_notifications, db_notifications, "Сохраняет историю уведомлений")
+        Rel(sms_gateway, sms_operator, "Передает SMS в оператор")
+    }
+
+    Container_Boundary(ScenarioService, "Микросервис сценариев") {
+        Component(api_scenario, "API сценариев", "REST API", "Обрабатывает запросы пользователей")
+        Component(command_scenario, "Обработчик сценариев", "Java", "Исполняет пользовательские сценарии")
+        Component(state_scenario, "Менеджер сценариев", "Java", "Сохраняет пользовательские сценарии")
+        Component(db_scenario, "База данных сценариев", "MongoDB", "Хранит данные сценариев")
+        Rel(api_scenario, command_scenario, "Передает команды сценариев")
+        Rel(api_scenario, state_scenario, "Передает команды сценариев")
+        Rel(command_scenario, db_scenario, "Получает сохраненные сценарии")
+        Rel(state_scenario, db_scenario, "Сохраняет и обновляет сценарии")
+    }
+}
+
+@enduml

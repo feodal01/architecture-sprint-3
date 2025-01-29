@@ -1,0 +1,42 @@
+@startuml
+class HeatingController {
+    - HeatingService heatingService
+    + setTemperature(targetTemp: double): void
+    + getTemperature(): double
+}
+
+class HeatingService {
+    - HeatingDeviceClient heatingDeviceClient
+    - StateManager stateManager
+    + updateHeatingState(targetTemp: double): void
+    + getCurrentTemperature(): double
+}
+
+class HeatingDeviceClient {
+    + sendCommand(command: String): void
+    + readTemperature(): double
+}
+
+class HeatingState {
+    + temperature: double
+    + status: String
+}
+
+class StateManager {
+    - Database database
+    + updateState(state: HeatingState): void
+    + getState(): HeatingState
+}
+
+class Database {
+    + saveData(data: HeatingState): void
+    + getData(): HeatingState
+}
+
+HeatingController --> HeatingService : "Управляет операциями отопления"
+HeatingService --> HeatingDeviceClient : "Отправляет команды и получает данные"
+HeatingService --> StateManager : "Обновляет и получает состояние"
+HeatingDeviceClient ..> HeatingState : "Считывает данные температуры"
+StateManager --> Database : "Хранит данные состояния"
+Database --> HeatingState : "Предоставляет сохраненные данные отопления"
+@enduml

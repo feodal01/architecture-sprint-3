@@ -1,0 +1,18 @@
+@startuml
+!include <C4/C4_Component>
+title Smart Home Component-Level Diagram
+
+Container_Boundary(VideoService, "Микросервис управления камерами") {
+    Component(api_video, "API видеонаблюдения", "REST API", "Обрабатывает запросы пользователей")
+    Component(command_video, "Обработчик команд", "Java", "Обрабатывает команды управления камерами")
+    Component(state_video, "Менеджер состояния камер", "Java", "Следит за состоянием камер и обновляет базу данных")
+    Component(db_tv, "База данных камер", "Postgres", "Хранит метаданные камер")
+    Component(db_tv_mongo, "База данных видеозаписей", "MongoDB", "Хранит видеозаписи")
+    System_Ext(tv, "Камеры", "Отвечает за видеонаблюдение")
+    Rel(api_video, command_video, "Передает команды управления")
+    Rel(command_video, state_video, "Обновляет состояние камер")
+    Rel(state_video, db_tv, "Сохраняет метаданные камер")
+    Rel(state_video, db_tv_mongo, "Сохраняет видеозаписи")
+    Rel(state_video, tv, "Передает команды на устройство")
+}
+@enduml
