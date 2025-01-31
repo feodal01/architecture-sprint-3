@@ -1,0 +1,101 @@
+openapi: 3.0.1
+info:
+  title: Device Service API
+  description: API для управления устройствами в системе умного дома.
+  version: 1.0.0
+
+paths:
+  /devices:
+    get:
+      summary: Получить список устройств
+      operationId: getDevices
+      responses:
+        "200":
+          description: Успешный ответ
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Device"
+    post:
+      summary: Добавить новое устройство
+      operationId: createDevice
+      requestBody:
+        description: Данные нового устройства
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Device"
+      responses:
+        "201":
+          description: Устройство успешно создано
+        "400":
+          description: Ошибка валидации данных
+
+  /devices/{deviceId}:
+    get:
+      summary: Получить информацию об устройстве
+      operationId: getDeviceById
+      parameters:
+        - name: deviceId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Устройство найдено
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Device"
+        "404":
+          description: Устройство не найдено
+    put:
+      summary: Обновить статус устройства
+      operationId: updateDevice
+      parameters:
+        - name: deviceId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeviceStatus"
+      responses:
+        "200":
+          description: Статус устройства обновлен
+        "404":
+          description: Устройство не найдено
+
+components:
+  schemas:
+    Device:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        type_id:
+          type: string
+          format: uuid
+        home_id:
+          type: string
+          format: uuid
+        serial_number:
+          type: string
+        status:
+          $ref: "#/components/schemas/DeviceStatus"
+
+    DeviceStatus:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: ["active", "inactive", "error"]

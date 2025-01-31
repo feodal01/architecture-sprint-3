@@ -1,0 +1,40 @@
+asyncapi: 3.0.0
+info:
+  title: Telemetry Service API
+  version: 1.0.0
+  description: API для получения телеметрических данных от устройств.
+servers:
+  production:
+    host: 'telemetry-service:9092'
+    protocol: kafka
+channels:
+  telemetry-data:
+    address: telemetry-data
+    messages:
+      receiveTelemetryData.message:
+        contentType: application/json
+        payload:
+          $ref: '#/components/schemas/TelemetryData'
+    description: Канал для получения данных о телеметрии
+operations:
+  receiveTelemetryData:
+    action: send
+    channel:
+      $ref: '#/channels/telemetry-data'
+    summary: Получение телеметрии от устройств
+    messages:
+      - $ref: '#/channels/telemetry-data/messages/receiveTelemetryData.message'
+components:
+  schemas:
+    TelemetryData:
+      type: object
+      properties:
+        device_id:
+          type: string
+          format: uuid
+        timestamp:
+          type: string
+          format: date-time
+        data:
+          type: object
+          additionalProperties: true

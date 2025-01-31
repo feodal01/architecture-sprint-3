@@ -1,0 +1,82 @@
+openapi: 3.0.1
+info:
+  title: Automation Service API
+  description: API для управления сценариями автоматизации в умном доме.
+  version: 1.0.0
+
+paths:
+  /automations:
+    get:
+      summary: Получить список сценариев пользователя
+      responses:
+        "200":
+          description: Успешный ответ
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Automation"
+    post:
+      summary: Создать новый сценарий
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Automation"
+      responses:
+        "201":
+          description: Сценарий успешно создан
+        "400":
+          description: Ошибка валидации данных
+
+  /automations/{automationId}/execute:
+    post:
+      summary: Запустить сценарий
+      parameters:
+        - name: automationId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Сценарий успешно выполнен
+        "404":
+          description: Сценарий не найден
+
+components:
+  schemas:
+    Automation:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        conditions:
+          type: array
+          items:
+            type: object
+            properties:
+              device_id:
+                type: string
+                format: uuid
+              condition:
+                type: string
+                enum: ["temperature_above", "motion_detected"]
+        actions:
+          type: array
+          items:
+            type: object
+            properties:
+              device_id:
+                type: string
+                format: uuid
+              action:
+                type: string
+                enum: ["turn_on", "turn_off"]

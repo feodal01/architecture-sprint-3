@@ -1,0 +1,48 @@
+openapi: 3.0.1
+info:
+  title: Device Event History API
+  description: API для получения истории событий устройства.
+  version: 1.0.0
+
+paths:
+  /devices/{deviceId}/events:
+    get:
+      summary: Получить историю событий устройства
+      parameters:
+        - name: deviceId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Успешный ответ
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DeviceEvent"
+        "404":
+          description: Устройство не найдено
+
+components:
+  schemas:
+    DeviceEvent:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        device_id:
+          type: string
+          format: uuid
+        timestamp:
+          type: string
+          format: date-time
+        event_type:
+          type: string
+          enum: ["status_change", "error", "command_executed"]
+        details:
+          type: object
+          additionalProperties: true
