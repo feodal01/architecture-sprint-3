@@ -1,0 +1,16 @@
+@startuml
+!include <C4/C4_Component>
+title Smart Home Component-Level Diagram
+
+Container_Boundary(GatesService, "Микросервис управления воротами") {
+    Component(api_gates, "API ворот", "REST API", "Обрабатывает запросы пользователей")
+    Component(command_gates, "Обработчик команд", "Java", "Обрабатывает команды управления воротами")
+    Component(state_gates, "Менеджер состояния ворот", "Java", "Следит за состоянием ворот и обновляет базу данных")
+    Component(db_gates, "База данных ворот", "Postgres", "Хранит данные о состоянии ворот")
+    System_Ext(gates, "Ворота", "Управляет автоматическими воротами")
+    Rel(api_gates, command_gates, "Передает команды управления")
+    Rel(command_gates, state_gates, "Обновляет состояние ворот")
+    Rel(state_gates, db_gates, "Сохраняет данные")
+    Rel(state_gates, gates, "Передает команды на устройство")
+}
+@enduml

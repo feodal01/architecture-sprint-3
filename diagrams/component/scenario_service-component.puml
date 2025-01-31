@@ -1,0 +1,15 @@
+@startuml
+!include <C4/C4_Component>
+title Smart Home Component-Level Diagram
+
+Container_Boundary(ScenarioService, "Микросервис сценариев") {
+    Component(api_scenario, "API сценариев", "REST API", "Обрабатывает запросы пользователей")
+    Component(command_scenario, "Обработчик сценариев", "Java", "Исполняет пользовательские сценарии")
+    Component(state_scenario, "Менеджер сценариев", "Java", "Сохраняет пользовательские сценарии")
+    Component(db_scenario, "База данных сценариев", "MongoDB", "Хранит данные сценариев")
+    Rel(api_scenario, command_scenario, "Передает команды сценариев")
+    Rel(api_scenario, state_scenario, "Передает команды сценариев")
+    Rel(command_scenario, db_scenario, "Получает сохраненные сценарии")
+    Rel(state_scenario, db_scenario, "Сохраняет и обновляет сценарии")
+}
+@enduml

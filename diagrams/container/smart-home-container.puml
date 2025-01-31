@@ -1,0 +1,91 @@
+@startuml
+title Smart Home Container Diagram
+
+left to right direction
+!include <C4/C4_Container>
+
+Person(user, "Пользователь", "Пользователь приложение")
+
+System_Boundary(SmartHomeSystem, "Smart Home") {
+
+    System_Boundary(web_application, "Веб приложение") {
+        Container(api_gateway, "API Gateway", "", "Маршрутизирует REST-запросы и управляет WebSockets")
+        Container(web_app, "Веб-приложение", "Java, Spring", "Обеспечивает интерфейс пользователя")
+        Container(profile, "Сервис авторизации и профиля", "Java, Spring", "Управляет профилем пользователя")
+    }
+
+    Container(message_broker, "Message broker", "Apache Kafka", "Обрабатывает асинхронные события")
+    Rel(user, api_gateway, "Взаимодействует через REST API и WebSockets")
+    Rel(api_gateway, web_app, "Маршрутизирует запросы к веб-приложению")
+    Rel(api_gateway, profile, "Авторизация")
+    Rel(web_app, profile, "web_app - profile: Управляет профилем пользователя")
+    Rel(web_app, message_broker, "web_app - message_broker: Обрабатывает асинхронные события через Kafka")
+
+    System_Boundary(BE, "Отопление") {
+        Container(microservice_heating, "Микросервис отопления", "Java", "Управляет отоплением")
+        Container(db_heating, "База данных", "Postgres", "Сохраняет данные об отоплении")
+    }
+    System_Ext(heating_system, "Система отопления", "Контролирует физическое отопление")
+    Rel(api_gateway, microservice_heating, "API Gateway - MS heating: Управляет через REST API")
+    Rel(microservice_heating, heating_system, "MS heating - heating: Управляет системой отопления")
+    Rel(microservice_heating, message_broker, "MS heating - kafka: Отправляет телеметрию через Kafka")
+
+    System_Boundary(BEL, "Свет") {
+        Container(microservice_light, "Микросервис освещения", "Java", "Управляет светом")
+        Container(db_light, "База данных", "Postgres", "Сохраняет данные об освещении")
+    }
+    System_Ext(lights, "Освещение")
+    Rel(api_gateway, microservice_light, "API Gateway - MS Light: Управляет через REST API")
+    Rel(microservice_light, lights, "MS Light - Light: Вкл/Выкл свет по REST API")
+    Rel(microservice_light, message_broker, "MS Light - Kafka: Отправляет телеметрию через Kafka")
+
+    System_Boundary(BEV, "Ворота") {
+        Container(microservice_gates, "Микросервис ворот", "Java", "Открывает/закрывает ворота")
+        Container(db_gates, "База данных", "Postgres", "Сохраняет информацию о состоянии ворот")
+    }
+    System_Ext(gates, "Ворота")
+    Rel(api_gateway, microservice_gates, "API Gateway - MS Gates: Управляет через REST API")
+    Rel(microservice_gates, gates, "MS Gates - Gates: Открывает/закрывает ворота")
+    Rel(microservice_gates, message_broker, "MS Gates - Kafka: Отправляет телеметрию через Kafka")
+
+    System_Boundary(BETV, "Видеоаналитика") {
+        Container(microservice_tv, "Микросервис видеонаблюдения", "Java", "Управляет видеокамерами")
+        Container(db_tv, "База данных", "Postgres", "Сохраняет данные о камерах")
+        Container(db_tv_mongo, "База данных", "MongoDB", "Хранит видеозаписи")
+    }
+    System_Ext(tv, "Камеры")
+    Rel(api_gateway, microservice_tv, "API Gateway - MS TV: Управляет через REST API")
+    Rel(microservice_tv, tv, "MS TV - TV: Управление камерами")
+    Rel(microservice_tv, message_broker, "MS TV - Kafka: Отправляет телеметрию через Kafka")
+
+    System_Boundary(BED, "Датчики") {
+        Container(microservice_monitoring, "Микросервис мониторинга", "Java", "Обрабатывает данные с датчиков")
+        Container(db_sensors, "База данных", "Postgres", "Сохраняет данные с датчиков")
+    }
+    System_Ext(temp_sensors, "Датчики температуры")
+    Rel(temp_sensors, microservice_monitoring, "Temp Sensors - MS Monitoring: Передают данные с датчиков")
+    Rel(microservice_monitoring, message_broker, "MS Monitoring - Kafka: Отправляет обработанные данные через Kafka")
+
+    System_Boundary(BES, "Сценарии") {
+        Container(microservice_s, "Микросервис сценариев", "Java", "Автоматизирует сценарии")
+        Container(db_s, "База данных", "MongoDB", "Сохраняет данные по сценариям")
+    }
+    Rel(microservice_s, message_broker, "MS Scenario - Kafka: Передает команды другим устройствам через Kafka")
+    Rel(message_broker, microservice_s, "Kafka - MS Scenario: Обрабатывает события через Kafka")
+
+    System_Boundary(BEA, "Уведомления") {
+        Container(microservice_a, "Микросервис уведомлений", "Java", "Отправляет уведомления")
+        Container(db_a, "База данных", "Postgres", "Сохраняет данные по уведомлениям")
+        Container(sms, "Смс-сервис", "Java", "Отправляет уведомления по СМС")
+        Container(mail, "Почтовый сервис", "Java", "Отправляет уведомления по почте")
+    }
+    System_Ext(sms_operator, "Оператор СМС")
+    Rel(message_broker, microservice_a, "Kafka - MS Alerts: Отправляет запрос на уведомление")
+    Rel(microservice_a, message_broker, "MS Alerts - Kafka: Отчитывается об отправленных уведомлениях")
+    Rel(sms, sms_operator, "Запрос на отправку СМС")
+
+    Container(websocket_server, "WebSocket Server", "Java", "Обеспечивает обновления интерфейса в реальном времени")
+    Rel(api_gateway, websocket_server, "API Gateway - Websocket: Передает обновления UI через WebSockets")
+    Rel(websocket_server, web_app, "Websoket - Web app: Обновляет интерфейс пользователя")
+}
+@enduml

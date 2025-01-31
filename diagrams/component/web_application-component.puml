@@ -1,0 +1,15 @@
+@startuml
+!include <C4/C4_Component>
+title Smart Home Component-Level Diagram
+
+Container_Boundary(web_application, "Веб приложение") {
+    Component(api_gateway, "API Gateway", "Spring API Gateway", "Управляет запросами пользователей и маршрутизацией к веб-приложению")
+    Component(web_app, "Веб-приложение", "Java, Spring", "Обеспечивает интерфейс для взаимодействия пользователя с системой")
+    Component(profile, "Сервис авторизации и профиля", "Java, Spring", "Обеспечивает авторизацию пользователя и управление профилем")
+    Component(db_web, "База данных веб-приложения", "Postgres", "Хранит пользовательские настройки")
+    Rel(web_app, db_web, "Читает и записывает пользовательские данные")
+    Rel(api_gateway, web_app, "Маршрутизирует запросы к веб-приложению")
+    Rel(api_gateway, profile, "Передает запросы авторизации")
+    Rel(web_app, profile, "Управляет профилем пользователя")
+ }
+@enduml

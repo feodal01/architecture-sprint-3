@@ -1,0 +1,16 @@
+@startuml
+!include <C4/C4_Component>
+title Smart Home Component-Level Diagram
+
+Container_Boundary(LightingService, "Микросервис управления светом") {
+    Component(api_light, "API освещения", "REST API", "Обрабатывает запросы пользователей")
+    Component(command_light, "Обработчик команд", "Java", "Обрабатывает команды управления освещением")
+    Component(state_light, "Менеджер состояния освещения", "Java", "Следит за состоянием света и обновляет базу данных")
+    Component(db_light, "База данных освещения", "Postgres", "Хранит данные об освещении")
+    System_Ext(lights, "Освещение", "Контролирует освещение в доме")
+    Rel(api_light, command_light, "Передает команды управления")
+    Rel(command_light, state_light, "Обновляет состояние освещения")
+    Rel(state_light, db_light, "Сохраняет данные")
+    Rel(state_light, lights, "Передает команды на устройство")
+}
+@enduml

@@ -1,0 +1,58 @@
+openapi: 3.0.1
+info:
+  title: Action Log Service API
+  description: API для управления логами действий пользователей.
+  version: 1.0.0
+
+paths:
+  /logs:
+    get:
+      summary: Получить список логов
+      responses:
+        "200":
+          description: Успешный ответ
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ActionLog"
+
+  /logs/{logId}:
+    get:
+      summary: Получить информацию о логе
+      parameters:
+        - name: logId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Лог найден
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ActionLog"
+        "404":
+          description: Лог не найден
+
+components:
+  schemas:
+    ActionLog:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        device_id:
+          type: string
+          format: uuid
+        timestamp:
+          type: string
+          format: date-time
+        action:
+          type: string
